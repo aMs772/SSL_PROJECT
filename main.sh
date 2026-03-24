@@ -45,6 +45,35 @@ login() {    # a function for logging into the game
                                 fi
                         done
                 else   ### need to do registration part.
+                #Registration starts here
+                        echo "Username $name is not registered. Do you want to register?(y/n)"
+                        read truth
+                        if [[ $truth == "y" || $truth == "Y" ]]; then
+                                while true; do
+                                        read -sp "choose a password for username $name: " password
+                                        echo ""
+                                        read -sp "confirm password: " password1
+                                        echo ""
+                                        if [[ $password == $password1 ]]; then
+                                                echo "$name is registered successfully"
+                                                password_hash=$( echo -n "$password$salt" | sha256sum | awk '{print $1}')
+                                                echo -e "$name\t$password_hash" >> users.tsv
+                                                read -p "Do you want to login with this credentials?(y/n)" truth
+                                                if [[ $truth == "y" || $truth == "Y" ]]; then
+                                                        echo "login of player $name is successful"
+                                                        player=$name
+                                                        break 2
+                                                else
+                                                        break
+                                                fi
+                                        else
+                                                echo "Passwords do not match"
+                                                continue
+                                        fi
+                                done
+                        else
+                                continue
+                        fi
                 fi
            fi
         done
@@ -56,6 +85,9 @@ player1=$player
 echo "Enter details for player2: "
 login
 player2=$player
+echo "$player1"
+echo "$player2"
+		#displaying player names before the game starts
 
 
 
