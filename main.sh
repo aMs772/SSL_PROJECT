@@ -44,4 +44,18 @@ login() {    # a function for logging into the game
            fi
         done
   }
+
+echo "Enter details for player1: "
+login
+player1=$player
+echo "Enter details for player2: "
+login
+player2=$player
+
+
+
+
+
+
+  
                         
