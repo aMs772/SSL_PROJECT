@@ -1,9 +1,10 @@
 #!/usr/bin/bash
 
+salt="ssl"
+
 player1=""  # initialising player1
 
 login() {    # a function for logging into the game
-    # while is written for lines 36,37,38 etc.
         while true; do
                 read -p "Enter username: " name
            if [[ $player1 == $name ]]; then                  # not allowing a player to play with himself
@@ -20,7 +21,7 @@ login() {    # a function for logging into the game
                                 read -sp "Enter password: " password
                                 echo ""
                 # for hashing the password We used sha256sum command and to get the first field (where the hash is present) We used awk
-                                password_hash=$( echo -n "$password" | sha256sum | awk '{print $1}' )
+                                password_hash=$( echo -n "$password$salt" | sha256sum | awk '{print $1}' )
                 # matching password in users.tsv
                                 if grep -q "^$name[[:space:]]$password_hash" users.tsv; then
                                         echo "login of player $name is successful"
