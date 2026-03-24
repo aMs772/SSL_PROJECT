@@ -20,7 +20,7 @@ login() {    # a function for logging into the game
                                                                 #  [[:space:]] matches any whitespace character including \n
                                                                 # -q is for quiet i.e. not to print anything on standard output
                         while true; do
-                # read -s is for secret it will not show what theuser is typying
+                # read -s is for secret it will not show what the user is typying
                 # but this will not output the default \n so for formatting purposes we added echo "" 
                                 read -sp "Enter password: " password
                                 echo ""
@@ -44,7 +44,7 @@ login() {    # a function for logging into the game
                                         fi
                                 fi
                         done
-                else  ### need to do registration part.
+                else  
                 #Registration starts here
 				#username not found in users.tsv 
                         echo "Username $name is not registered. Do you want to register?(y/n)"
