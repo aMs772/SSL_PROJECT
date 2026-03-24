@@ -44,34 +44,43 @@ login() {    # a function for logging into the game
                                         fi
                                 fi
                         done
-                else   ### need to do registration part.
+                else  ### need to do registration part.
                 #Registration starts here
+				#username not found in users.tsv 
                         echo "Username $name is not registered. Do you want to register?(y/n)"
                         read truth
+			    #asking user to register or not
                         if [[ $truth == "y" || $truth == "Y" ]]; then
                                 while true; do
-                                        read -sp "choose a password for username $name: " password
+                                        read -sp "choose a password for username $name: " password 
                                         echo ""
                                         read -sp "confirm password: " password1
-                                        echo ""
+                                        echo "" 
+			    #asking to make a password and confirm password		
                                         if [[ $password == $password1 ]]; then
                                                 echo "$name is registered successfully"
+			    #user and password created
                                                 password_hash=$( echo -n "$password$salt" | sha256sum | awk '{print $1}')
                                                 echo -e "$name\t$password_hash" >> users.tsv
+			    #user details added to users.tsv
                                                 read -p "Do you want to login with this credentials?(y/n)" truth
                                                 if [[ $truth == "y" || $truth == "Y" ]]; then
                                                         echo "login of player $name is successful"
                                                         player=$name
                                                         break 2
+			    #asking whether to login with these credentials.If yes then the 2 while loops break and login fn stops
                                                 else
                                                         break
+			    #user might want to play with other credentials after registration then the loop continues
                                                 fi
                                         else
                                                 echo "Passwords do not match"
                                                 continue
+			    #Password ,confirm password makes user to choose and confirm password again in loop
                                         fi
                                 done
                         else
+			    #If user doesn’t want to register then again the loop continues
                                 continue
                         fi
                 fi
