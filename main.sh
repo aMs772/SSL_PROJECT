@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# using salt to make the passwords more secure. This salt is to be added after the password before hashing
+# This way even if one gets the hash by some means, they can't guess the password.
+# In this file we have choosen salt to be "ssl" (for obivious reasons)
+
 salt="ssl"
 
 player1=""  # initialising player1
