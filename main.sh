@@ -97,6 +97,7 @@ player2=$player
 echo "$player1"
 echo "$player2"
 		#displaying player names before the game starts
+python3 game.py "$player1" "$player2"
 
 
 
