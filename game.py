@@ -1,8 +1,8 @@
 import sys
 import pygame as pg
 
-#player1 = sys.argv[1]
-#player2 = sys.argv[2]
+player1 = sys.argv[1]
+player2 = sys.argv[2]
 
 class game:
     def __init__(self, name1, name2):
@@ -53,6 +53,48 @@ backgroundMusic = pg.mixer.Sound("sound/beats.mp3")
 #backgroundMusic.set_volume(0.5)
 
 
+def intro_screen(player1, player2):
+    big = pg.font.Font(None, 100)
+    med = pg.font.Font(None, 60)
+    small = pg.font.Font(None, 30)
+
+    ko = big.render("KO", True, (255, 0, 0))
+    vs = small.render("VS", True, (255, 255, 255))
+    p1_text = med.render(player1, True, (255, 255, 0))
+    p2_text = med.render(player2, True, (0, 200, 255))
+    press = small.render("Press any key", True, (255, 255, 255))
+
+    # Symmetric positions
+    center_x = screenWidth // 2
+    p1_target_x = center_x - 150
+    p2_target_x = center_x + 50
+    x1 = -p1_text.get_width()  # start offscreen left
+    x2 = screenWidth           # start offscreen right
+
+    running = True
+    while running:
+        clock.tick(60)
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            if event.type == pg.KEYDOWN:
+                running = False  
+
+        screen.fill((50, 50, 100))  
+
+        if x1 < p1_target_x:
+            x1 += 5
+        if x2 > p2_target_x:
+            x2 -= 5
+
+        screen.blit(ko, (center_x - 50, 50))
+        screen.blit(p1_text, (x1, 200))
+        screen.blit(vs, (center_x - 20, 260))
+        screen.blit(p2_text, (x2, 320))
+        screen.blit(press, (center_x - 100, 450))
+
+        pg.display.update()
 def menu():
     playedGame = False
     while playedGame == False:
@@ -95,5 +137,5 @@ def menu():
 
         pg.display.update()
 
-
+intro_screen(player1,player2)
 menu()
