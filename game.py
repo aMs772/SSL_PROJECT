@@ -119,25 +119,37 @@ def menu():
         screen.blit(connect4, connect4_rect)
 
         if event.type == pg.MOUSEBUTTONDOWN:
-# When the user clicks the mouse button, it checks if the click was on any of the game logos. If so, it sets playedGame to True, which starts the game.
+# When user clicks the mouse button, it checks if click was on game logos. If so, it sets playedGame to True, which starts the game.
             if event.button == 1:
                 if ticTacToe_rect.collidepoint(event.pos):
                     # call tic tac toe 
                     playedGame = True
+                    gamePlayed="TicTacToe"
                     pass
                 elif othello_rect.collidepoint(event.pos):
                     # call othello
                     playedGame = True
+                    gamePlayed="Othello"
                     pass
                 elif connect4_rect.collidepoint(event.pos):
                     # call connect4
                     playedGame = True
+                    gamePlayed="Connect4"
                     pass
     
         if playedGame:
-            # append history.csv
+            
+            now = datetime.now()
+            file = open("history.csv", "a")  # open file in append mode
+           
+            writer = csv.writer(file)        # create writer
+            writer.writerow([winner,loser,now,gamePlayed])   # append details of the game
+           
+            file.close()  # close file 
+            # appended history.csv
             # call leaderboard.sh
-            # visualise results using matplotlib
+            subprocess.run(["bash", "leaderboard.sh"])
+            # visualise results using matplotlib  
             # prompt to play again
             pass
 
