@@ -10,6 +10,10 @@ class game:
         self.player2 = name2
         self.turn = 1
 #Starts with player 1's turn and switches turns after each move.
+     def board(self, size):
+        self.board = np.zeros((size, size), dtype=int)
+        return self.board
+
     def switch_turn(self):
         if self.turn == 1:
             self.turn = 2
