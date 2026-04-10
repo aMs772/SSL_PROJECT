@@ -12,7 +12,6 @@ def check_win(m, turn):
     target = 5
 
     def horiz(m):
-        """Slide a target-wide window across columns recursively."""  
         if m.shape[1] < target:
             return False
         if np.any(np.all(m[:, :target] == turn, axis=1)):
@@ -23,13 +22,11 @@ def check_win(m, turn):
         return horiz(m.T)              
 
     def diag_at_origin(m):
-        """True if main diagonal of top-left target×target block is all 1s."""
         if m.shape[0] < target or m.shape[1] < target:
             return False
         return bool(np.all(np.diag(m[:target, :target]) == turn))
 
     def slide_row(m):
-        """Checks diagonals whose top cell is in row 0 → slide right."""
         if m.shape[1] < target:
             return False
         if diag_at_origin(m):
@@ -37,17 +34,12 @@ def check_win(m, turn):
         return slide_row(m[:, 1:])      
 
     def slide_col(m):
-        """Checks diagonals whose leftmost cell is in col 0 → slide down."""
         if m.shape[0] < target:
             return False
         if diag_at_origin(m):
             return True
         return slide_col(m[1:, :])      
     def diag(m):
-        """Cover every diagonal:
-           slide_row  → diagonals starting at (0, 0..n)
-           slide_col  → diagonals starting at (1..n, 0)  [skip (0,0) to avoid double-count]
-        """
         return slide_row(m) or slide_col(m[1:, :])
     
     return horiz(m) or vert(m) or diag(m)
