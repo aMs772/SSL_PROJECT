@@ -1,8 +1,10 @@
 #!/bin/bash
 
+sort_option=$1
 awk -F, '
 {
     game = $4
+    gsub(/\r/, "", game)
     win_id = game "," $1
     lose_id = game "," $2
 
