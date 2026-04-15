@@ -47,6 +47,9 @@ if __name__ == "__main__":
     winbackground=pg.image.load("Media/images/Outro.png")
     winbackground = pg.transform.scale(winbackground, (screenWidth, screenHeight))
 
+    sortbackground=pg.image.load("Media/images/B.png")
+    sortbackground = pg.transform.scale(sortbackground, (screenWidth, screenHeight))
+
     ticTacToe = pg.image.load("Media/images/Tictactoe.png").convert_alpha()
     ticTacToe = pg.transform.scale(ticTacToe, (125, 125))
     ticTacToe_rect = ticTacToe.get_rect(topleft=(100, 300))
@@ -74,7 +77,86 @@ if __name__ == "__main__":
     backgroundMusic = pg.mixer.Sound("Media/sounds/Metamorphosis_Bgm.mp3")
     Winmusic = pg.mixer.Sound("Media/sounds/applause.wav")
     intromusic=pg.mixer.Sound("Media/sounds/intro.mp3")
- 
+
+    def sort_screen():
+        #button dimensions of each W,l,w/l
+        #dimesions of box
+        #add sort leader board by 
+        title_font = pg.font.SysFont("Georgia", 52, bold=True)
+        title_text = title_font.render("Sort Leaderboard By", True, (180, 255, 255))
+
+        title_rect = title_text.get_rect(center=(screenWidth // 2, 250))
+        btn_wid,btn_ht=230,90
+        btn_y=369
+
+        W_x = screenWidth // 2 - 1.5*btn_wid - 20
+        L_x = screenWidth // 2 - 0.5*btn_wid
+        W_L_x=screenWidth // 2 + 0.5*btn_wid +20
+
+        W_rect = pg.Rect(W_x, btn_y, btn_wid, btn_ht)
+        L_rect=  pg.Rect(L_x, btn_y, btn_wid, btn_ht)
+        W_L_rect=  pg.Rect(W_L_x, btn_y, btn_wid, btn_ht)
+
+        running=True
+        while running:
+            clock.tick(60)
+            mouse_pos=pg.mouse.get_pos()
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+
+                        if W_rect.collidepoint(event.pos):
+                            running = False
+                            sort_option="W"
+
+                        if L_rect.collidepoint(event.pos):
+                            running=False
+                            sort_option="L"
+
+                        if W_L_rect.collidepoint(event.pos):
+                            running=False
+                            sort_option="W/L"
+            screen.blit(sortbackground,(0,0))
+
+            W_color = (30 ,90, 160) if W_rect.collidepoint(mouse_pos) else (20 ,60, 120)
+            pg.draw.rect(screen, W_color, W_rect, border_radius=30)
+            pg.draw.rect(screen, (100, 200, 255), W_rect, width=3, border_radius=30)
+
+            small_font1 = pg.font.SysFont("Arial", 40, bold=True)
+            W_text = small_font1.render("Wins", True, (255, 245, 230))
+            screen.blit(W_text, W_text.get_rect(center=W_rect.center))
+
+            L_color = (30 ,90, 160) if L_rect.collidepoint(mouse_pos) else (20 ,60, 120)
+            pg.draw.rect(screen, L_color, L_rect, border_radius=30)
+            pg.draw.rect(screen, (100, 200, 255), L_rect, width=3, border_radius=30)
+
+            small_font1 = pg.font.SysFont("Arial", 40, bold=True)
+            L_text = small_font1.render("Loses", True, (255, 245, 230))
+            screen.blit(L_text, L_text.get_rect(center=L_rect.center))
+
+            W_L_color = (30 ,90, 160) if W_L_rect.collidepoint(mouse_pos) else (20 ,60, 120)
+            pg.draw.rect(screen, W_L_color, W_L_rect, border_radius=30)
+            pg.draw.rect(screen, (100, 200, 255), W_L_rect, width=3, border_radius=30)
+
+            small_font1 = pg.font.SysFont("Arial", 40, bold=True)
+            W_L_text = small_font1.render("Wins/Loses", True, (255, 245, 230))
+            screen.blit(W_L_text, W_L_text.get_rect(center=W_L_rect.center))
+
+            shadow_text = title_font.render("Sort Leaderboard By", True, (0, 80, 120))
+            shadow_rect = shadow_text.get_rect(center=(screenWidth // 2 + 3, 253))
+            screen.blit(shadow_text, shadow_rect)
+
+            screen.blit(title_text,title_rect)
+
+            pg.display.update()
+
+        return sort_option
+    
     def win_screen(winner):
         big_font1 = pg.font.Font(None, 120)
         med_font1 = pg.font.Font(None, 70)
@@ -278,8 +360,9 @@ if __name__ == "__main__":
            
                 file.close()  # close file 
                 # appended history.csv
-                # call leaderboard.sh 
-                subprocess.run(["bash", "leaderboard.sh"])
+                # call leaderboard.sh
+                sort_option=sort_screen()
+                subprocess.run(["bash", "leaderboard.sh",sort_option])
                 # visualise results using matplotlib
                 backgroundMusic.stop()
                 win_screen(winner)
