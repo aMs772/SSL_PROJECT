@@ -62,6 +62,10 @@ if __name__ == "__main__":
     connect4 = pg.image.load("Media/images/C$.png").convert_alpha()
     connect4 = pg.transform.scale(connect4, (125, 125))
     connect4_rect = connect4.get_rect(topleft=(600, 300))
+
+    popit = pg.image.load("Media/images/Popit.png").convert_alpha()
+    popit = pg.transform.scale(popit, (125, 125))
+    popit_rect = popit.get_rect(topleft=(350, 450))
 # Loads TicTacToe, Othello, and Connect 4 logos, scale them, and get their position rectangles
 
 # Images,sounds and fonts are loaded and transformed to fit the screen and look good.
@@ -327,6 +331,14 @@ if __name__ == "__main__":
                                 loser=player2 if resultC.returncode == 1 else player2
                                 playedGame = True
                                 gamePlayed="Connect4"
+                        elif popit_rect.collidepoint(event.pos):
+                            # call popit
+                            resultp=subprocess.run(["python3.10", "games/pop_it.py", player1, player2])
+                            if resultp.returncode != 0 :
+                                winner = player1 if resultp.returncode == 1 else player2
+                                loser=player2 if resultp.returncode == 1 else player1
+                                playedGame = True
+                                gamePlayed="PopIt"
 
 # Draw all images and text onto the screen at their positions
             screen.blit(background, (0, 0))
