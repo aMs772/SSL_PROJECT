@@ -35,7 +35,7 @@ else
     col=3
 fi
 
-for g in TicTacToe Othello Connect4; do
+for g in TicTacToe Othello Connect4 Popit; do
     echo "--- $g ---"
     echo "PLAYER|WINS|LOSSES|W/L"
     
