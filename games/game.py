@@ -6,6 +6,7 @@ import numpy as np
 import subprocess
 import pygame as pg
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 #player names taken as command line arguments from main.sh
 player1 = sys.argv[1]
@@ -364,6 +365,72 @@ if __name__ == "__main__":
                 sort_option=sort_screen()
                 subprocess.run(["bash", "leaderboard.sh",sort_option])
                 # visualise results using matplotlib
+                wins = {}
+                losses = {}
+                ratios = {}
+                game_freq = {}
+
+                with open("data.txt") as f:
+                    for line in f:
+                        game, user, w, l, r = line.strip().split(",")
+
+                        w=int(w)
+                        l=int(l)
+                        r=float(r)
+                        wins[user] = wins.get(user, 0) + w
+                        losses[user] = losses.get(user, 0) + l
+                        game_freq[game] = game_freq.get(game, 0) + 1
+                        
+                ratios = {u: wins[u] / losses[u] if losses[u] != 0 else wins[u] for u in wins}
+                top = sorted(wins, key=wins.get, reverse=True)[:5]
+                top_wins = [wins[x] for x in top]
+                top_r = sorted(ratios ,key=ratios.get, reverse=True)[:5]
+                top_ratio=[ratios[x] for x in top_r]
+
+                plt.figure(figsize=(5,4))
+                plt.bar(top, top_wins)
+                plt.title("Top Wins")
+                plt.tight_layout()
+                plt.savefig("bar.png")
+                plt.close()
+
+                plt.figure(figsize=(5,4))
+                plt.bar(top_r, top_ratio)
+                plt.title("Win/Loss Ratio")
+                plt.tight_layout()
+                plt.savefig("wl.png")
+                plt.close()
+
+                plt.figure(figsize=(5,4))
+                plt.pie(game_freq.values(), labels=game_freq.keys(), autopct="%1.1f%%")
+                plt.title("Game Frequency")
+                plt.tight_layout()
+                plt.savefig("pie.png")
+                plt.close()
+                bar = pg.image.load("bar.png")
+                wl  = pg.image.load("wl.png")
+                pie = pg.image.load("pie.png")
+
+                bar = pg.transform.smoothscale(bar, (380, 260))
+                wl  = pg.transform.smoothscale(wl,  (380, 260))
+                pie = pg.transform.smoothscale(pie, (380, 260))
+                show = True
+
+                while show:
+                    for e in pg.event.get():
+                        if e.type == pg.QUIT:
+                            pg.quit()
+                            sys.exit()
+                        if e.type == pg.KEYDOWN:
+                            show = False
+
+                    screen.fill((20, 20, 20))
+                    screen.blit(bar, (20, 20))
+                    screen.blit(wl,  (400, 20))
+                    screen.blit(pie, (210, 310))
+
+                    pg.display.update()
+                    
                 backgroundMusic.stop()
                 win_screen(winner)
                 # prompt to play again
