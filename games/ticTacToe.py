@@ -2,17 +2,15 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pygame as pg
-import subprocess
 from game import game 
 import numpy as np
 
 ticTacToeGame = game(sys.argv[1], sys.argv[2])
-
 m = ticTacToeGame.board(10)
 
 def check_win(m, turn):
     target = 5
-
+    
     def horiz(m):
         """Slide a target-wide window across columns recursively."""  
         if m.shape[1] < target:
@@ -46,7 +44,7 @@ def check_win(m, turn):
             return True
         return slide_col(m[1:, :])      
     def diag(m):
-        return slide_col(m[:,1:])
+        return slide_col(m)
 
 
     def anti_diag(m):
@@ -54,55 +52,96 @@ def check_win(m, turn):
     
     return horiz(m) or vert(m) or diag(m) or anti_diag(m)
 pg.init()
-
+pg.init()
 screenWidth, screenHeight = 800, 600
-screen = pg.display.set_mode((screenWidth, screenHeight))
+screen = pg.display.set_mode((screenWidth, screenHeight), pg.RESIZABLE)
 pg.display.set_caption("Tic Tac Toe")
-
 clock = pg.time.Clock()
 
-background = pg.Surface((screenWidth, screenHeight))
-background.fill("white")
-LINE_WIDTH = 3
-for i in range(1, 10):
-    pg.draw.line(background, "black", (i*screenWidth/10, 0), (i*screenWidth/10, screenHeight), LINE_WIDTH)
-    pg.draw.line(background, "black", (0, i*screenHeight/10), (screenWidth, i*screenHeight/10), LINE_WIDTH)
+# Board Setup 
+boardSize = int(screenHeight * 0.85)
+boardX, boardY = (screenWidth - boardSize) // 2, (screenHeight - boardSize) // 2
+cell_width = cell_height = boardSize // 10
+anim_cells = {} 
+name_font = pg.font.SysFont("Georgia", 28, bold=True)
+won = False
 
 running = True
-while running == True:
-        clock.tick(5)
+while running:
+    clock.tick(60) 
+    
+    # Drawing Background & Circles 
+    screen.fill((15, 10, 40))
+    pg.draw.rect(screen, (30, 0, 60),  pg.Rect(0, 0, screenWidth, screenHeight // 2))
+    pg.draw.rect(screen, (10, 0, 30),  pg.Rect(0, screenHeight // 2, screenWidth, screenHeight // 2))
+    pg.draw.circle(screen, (80, 0, 120),  (screenWidth // 4, screenHeight // 3), 180)
+    pg.draw.circle(screen, (0, 60, 140),  (3 * screenWidth // 4, 2 * screenHeight // 3), 200)
 
-        screen.blit(background,(0,0))
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit(0)
-            
-            if event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    x, y = event.pos
-                    row = y // 60
-                    col = x // 80
-                    if m[row][col] == 0:
-                        m[row][col] = ticTacToeGame.turn
-                        if check_win(m, ticTacToeGame.turn) != True:
-                            ticTacToeGame.switch_turn()
+    # Drawing Grid 
+    pg.draw.rect(screen, (20, 20, 45), (boardX, boardY, boardSize, boardSize))
+    for i in range(11):
+        pg.draw.line(screen, (100, 100, 150), (boardX + i*cell_width, boardY), (boardX + i*cell_width, boardY + boardSize), 2)
+        pg.draw.line(screen, (100, 100, 150), (boardX, boardY + i*cell_height), (boardX + boardSize, boardY + i*cell_height), 2)
 
-        cell_width = 80
-        cell_height = 60
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            pg.quit(); sys.exit(0)
         
-        for i in range(10):
-            for j in range(10):
-                if m[i][j] == 2:
-                    pg.draw.circle(screen, "red", (j*cell_width + cell_width//2, i*cell_height + cell_height//2), cell_width//4)
-                elif m[i][j] == 1:
-                    pg.draw.line(screen, "blue", (j*cell_width + 5, i*cell_height + 5), (j*cell_width + cell_width - 5, i*cell_height + cell_height - 5), 5)
-                    pg.draw.line(screen, "blue", (j*cell_width + cell_width - 5, i*cell_height + 5), (j*cell_width + 5, i*cell_height + cell_height - 5), 5)
-        
-        
-        
-        pg.display.update()
-        if check_win(m, ticTacToeGame.turn) == True:
-            #add striking the 5 x/o's code
-            pg.time.delay(700)
-            sys.exit(ticTacToeGame.turn)
+        if event.type == pg.MOUSEBUTTONDOWN and not won:
+            if event.button == 1:
+                x, y = event.pos
+                col = (x - boardX) // cell_width
+                row = (y - boardY) // cell_height
+                if 0 <= row < 10 and 0 <= col < 10 and m[row][col] == 0:
+                    m[row][col] = ticTacToeGame.turn
+                    anim_cells[(row, col)] = 4
+                    if check_win(m, ticTacToeGame.turn):
+                        won = True
+                    else:
+                        #need to check the draw condition too later
+                        ticTacToeGame.switch_turn()
+
+    # Drawing Pieces & Animation
+    anim_done = True
+    for i in range(10):
+        for j in range(10):
+            if m[i][j] != 0:
+                target_s = cell_width * 0.7
+                if anim_cells.get((i, j), target_s) < target_s:
+                    anim_cells[(i, j)] += 5
+                    anim_done = False
+                
+                s = anim_cells.get((i, j), target_s)
+                cell_x, cell_y = boardX + j * cell_width + cell_width // 2, boardY + i * cell_height + cell_height // 2
+
+                if m[i][j] == 1: # Draw X
+                    pg.draw.line(screen, (220, 60, 60), (cell_x-(s/2), cell_y-(s/2)), (cell_x+(s/2), cell_y+(s/2)), 4)
+                    pg.draw.line(screen, (220, 60, 60), (cell_x+(s/2), cell_y-(s/2)), (cell_x-(s/2), cell_y+(s/2)), 4)
+                elif m[i][j] == 2: # Draw O
+                    pg.draw.circle(screen, (60, 180, 220), (cell_x, cell_y), int(s/2), 4)
+
+    # Side Panels
+    p1x, p1y = boardX // 2, screenHeight // 2
+    # Player 1 Symbol & Name
+    pg.draw.line(screen, (220, 60, 60), (p1x-20, p1y-60), (p1x+20, p1y-20), 5)
+    pg.draw.line(screen, (220, 60, 60), (p1x+20, p1y-60), (p1x-20, p1y-20), 5)
+    p1name = name_font.render(ticTacToeGame.player1, True, "white")
+    screen.blit(p1name, p1name.get_rect(center=(p1x, p1y + 20)))
+    if ticTacToeGame.turn == 1:
+        pg.draw.rect(screen, (255, 215, 0), (p1x-60, p1y-80, 120, 130), 3, border_radius=10)
+
+    p2x = boardX + boardSize + (screenWidth - boardX - boardSize) // 2
+    p2y = screenHeight // 2
+    # Player 2 Symbol & Name
+    pg.draw.circle(screen, (60, 180, 220), (p2x, p2y-40), 20, 5)
+    p2name = name_font.render(ticTacToeGame.player2, True, "white")
+    screen.blit(p2name, p2name.get_rect(center=(p2x, p2y + 20)))
+    if ticTacToeGame.turn == 2:
+        pg.draw.rect(screen, (255, 215, 0), (p2x-60, p2y-80, 120, 130), 3, border_radius=10)
+
+    pg.display.update()
+
+    if won and anim_done:
+        #should add the animation for the striking after win
+        pg.time.delay(1500)
+        sys.exit(ticTacToeGame.turn)
