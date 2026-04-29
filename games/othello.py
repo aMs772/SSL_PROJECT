@@ -16,8 +16,7 @@ gameBoard[4][3] = 2
 gameBoard[4][4] = 1
 
 
-# game logic
-
+# check win 
 def check_win(gameBoard, turn):
     if not is_move_available(gameBoard, 1) and not is_move_available(gameBoard, 2):
         if np.count_nonzero(gameBoard == 1) > np.count_nonzero(gameBoard == 2):
@@ -29,7 +28,7 @@ def check_win(gameBoard, turn):
     else:
         return -1
 
-
+# using for loops for finding whether valid move is available
 def is_move_available(gameBoard, turn):
     for i in range(8):
         for j in range(8):
@@ -45,7 +44,7 @@ def valid_moves(gameBoard, turn):
                 moves.append((i, j))
     return moves
 
-
+# check valid moves using directions 
 def flip_direction(gameBoard, r, c, turn, dr, dc, make_move):
     opponent = 3 - turn
 
@@ -78,7 +77,7 @@ def flip_direction(gameBoard, r, c, turn, dr, dc, make_move):
         return True
 
     return False
-
+# use flipdirections function for valid move
 def valid_move(gameBoard, r, c, turn):
     if gameBoard[r][c] != 0:
         return False
@@ -94,7 +93,7 @@ def valid_move(gameBoard, r, c, turn):
         flip_direction(gameBoard, r, c, turn, -1, 1, False)
     )
 
-
+# flip coins and place the player coin using flip directions
 def make_move(gameBoard, r, c, turn):
     gameBoard[r][c] = turn
 
