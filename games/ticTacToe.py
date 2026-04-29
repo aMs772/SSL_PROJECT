@@ -2,17 +2,28 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pygame as pg
+import subprocess
 from game import game 
 import numpy as np
 
-ticTacToeGame = game(sys.argv[1], sys.argv[2])
-m = ticTacToeGame.board(10)
+if len(sys.argv) > 2:
+    player1 = sys.argv[1]
+    player2 = sys.argv[2]
+elif len(sys.argv) == 2:
+    player1 = sys.argv[1]
+    player2 = input("Enter name of player 2: ")
+else:
+    player1 = input("Enter name of player 1: ")
+    player2 = input("Enter name of player 2: ")
 
-def check_win(m, turn):
-    target = 5
-    
-    def horiz(m):
-        """Slide a target-wide window across columns recursively."""  
+ticTacToeGame = game(player1, player2)
+
+gameBoard = ticTacToeGame.board(10)
+memory = gameBoard.copy()
+
+def check_win(m, turn, target=5 ):
+
+    def horiz(m):  
         if m.shape[1] < target:
             return False
         if np.any(np.all(m[:, :target] == turn, axis=1)):
@@ -23,13 +34,13 @@ def check_win(m, turn):
         return horiz(m.T)              
 
     def diag_at_origin(m):
-        """True if main diagonal of top-left target×target block is all 1s."""
+        # True if main diagonal of top-left target×target block is all 1s.
         if m.shape[0] < target or m.shape[1] < target:
             return False
         return bool(np.all(np.diag(m[:target, :target]) == turn))
 
     def slide_row(m):
-        """Checks diagonals whose top cell is in row 0 → slide right."""
+        # Checks diagonals whose top cell is in row 0 → slide right.
         if m.shape[1] < target:
             return False
         if diag_at_origin(m):
@@ -37,7 +48,7 @@ def check_win(m, turn):
         return slide_row(m[:, 1:])      
 
     def slide_col(m):
-        """Checks diagonals whose leftmost cell is in col 0 → slide down."""
+        # Checks diagonals whose leftmost cell is in col 0 → slide down.
         if m.shape[0] < target:
             return False
         if slide_row(m):
@@ -46,27 +57,27 @@ def check_win(m, turn):
     def diag(m):
         return slide_col(m)
 
-
     def anti_diag(m):
         return diag(np.fliplr(m))
     
     return horiz(m) or vert(m) or diag(m) or anti_diag(m)
-pg.init()
+
 pg.init()
 screenWidth, screenHeight = 800, 600
 screen = pg.display.set_mode((screenWidth, screenHeight), pg.RESIZABLE)
 pg.display.set_caption("Tic Tac Toe")
 clock = pg.time.Clock()
 
-# Board Setup 
+# gameBoard info
 boardSize = int(screenHeight * 0.85)
 boardX, boardY = (screenWidth - boardSize) // 2, (screenHeight - boardSize) // 2
 cell_width = cell_height = boardSize // 10
 anim_cells = {} 
 name_font = pg.font.SysFont("Georgia", 28, bold=True)
-won = False
 
+won = False
 running = True
+
 while running:
     clock.tick(60) 
     
@@ -92,20 +103,42 @@ while running:
                 x, y = event.pos
                 col = (x - boardX) // cell_width
                 row = (y - boardY) // cell_height
-                if 0 <= row < 10 and 0 <= col < 10 and m[row][col] == 0:
-                    m[row][col] = ticTacToeGame.turn
+                if 0 <= row < 10 and 0 <= col < 10 and gameBoard[row][col] == 0:
+                    gameBoard[row][col] = ticTacToeGame.turn
                     anim_cells[(row, col)] = 4
-                    if check_win(m, ticTacToeGame.turn):
+                    if check_win(gameBoard, ticTacToeGame.turn):
                         won = True
+                    elif np.count_nonzero(gameBoard) == 100:
+                            pg.time.delay(1500)
+                            sys.exit(3)  
                     else:
-                        #need to check the draw condition too later
                         ticTacToeGame.switch_turn()
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_F11:
+                fullscreen = not fullscreen
+                if fullscreen:
+                    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+                else:
+                    screen = pg.display.set_mode((screenWidth, screenHeight), pg.RESIZABLE)
+                screenWidth, screenHeight = screen.get_size()
+                boardSize = int(screenHeight * 0.85)
+                boardX    = (screenWidth - boardSize) // 2
+                boardY    = (screenHeight - boardSize) // 2
+                cell_width = cell_height = boardSize // 10
 
-    # Drawing Pieces & Animation
+        if event.type == pg.VIDEORESIZE:
+            screenWidth, screenHeight = event.w, event.h
+            screen = pg.display.set_mode((screenWidth, screenHeight), pg.RESIZABLE)
+            boardSize = int(screenHeight * 0.85)
+            boardX    = (screenWidth - boardSize) // 2
+            boardY    = (screenHeight - boardSize) // 2
+            cell_width = cell_height = boardSize // 10
+
+    # Doing animation
     anim_done = True
     for i in range(10):
         for j in range(10):
-            if m[i][j] != 0:
+            if gameBoard[i][j] != 0:
                 target_s = cell_width * 0.7
                 if anim_cells.get((i, j), target_s) < target_s:
                     anim_cells[(i, j)] += 5
@@ -114,13 +147,13 @@ while running:
                 s = anim_cells.get((i, j), target_s)
                 cell_x, cell_y = boardX + j * cell_width + cell_width // 2, boardY + i * cell_height + cell_height // 2
 
-                if m[i][j] == 1: # Draw X
+                if gameBoard[i][j] == 1: 
                     pg.draw.line(screen, (220, 60, 60), (cell_x-(s/2), cell_y-(s/2)), (cell_x+(s/2), cell_y+(s/2)), 4)
                     pg.draw.line(screen, (220, 60, 60), (cell_x+(s/2), cell_y-(s/2)), (cell_x-(s/2), cell_y+(s/2)), 4)
-                elif m[i][j] == 2: # Draw O
+                elif gameBoard[i][j] == 2: 
                     pg.draw.circle(screen, (60, 180, 220), (cell_x, cell_y), int(s/2), 4)
 
-    # Side Panels
+    # displaying players
     p1x, p1y = boardX // 2, screenHeight // 2
     # Player 1 Symbol & Name
     pg.draw.line(screen, (220, 60, 60), (p1x-20, p1y-60), (p1x+20, p1y-20), 5)
@@ -129,7 +162,7 @@ while running:
     screen.blit(p1name, p1name.get_rect(center=(p1x, p1y + 20)))
     if ticTacToeGame.turn == 1:
         pg.draw.rect(screen, (255, 215, 0), (p1x-60, p1y-80, 120, 130), 3, border_radius=10)
-
+        
     p2x = boardX + boardSize + (screenWidth - boardX - boardSize) // 2
     p2y = screenHeight // 2
     # Player 2 Symbol & Name
@@ -142,6 +175,9 @@ while running:
     pg.display.update()
 
     if won and anim_done:
+        #winner_name = ticTacToeGame.player1 if ticTacToeGame.turn == 1 else ticTacToeGame.player2
+        #ticTacToeGame.afterwin(screen, winner_name, clock, lambda: draw_board(screen, m, None, ticTacToeGame.turn))
         #should add the animation for the striking after win
         pg.time.delay(1500)
         sys.exit(ticTacToeGame.turn)
+
