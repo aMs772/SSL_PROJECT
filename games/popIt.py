@@ -4,104 +4,138 @@ import pygame as pg
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from game import game
-import subprocess
 
 PopIt = game(sys.argv[1], sys.argv[2])
-
 gameBoard = PopIt.board(6)
 
-def check_win(gameBoard):
+ROWS = 6
+COLS = 6
+
+def check_win():
     return np.all(gameBoard == 1)
 
-def valid_move(gameBoard, r_initial, r, c):
-    if r == r_initial:
-        if gameBoard[r][c] == 0:
-            return True
-    
-    return False
+def valid_move(gameBoard,r_initial, r, c):
+    return r == r_initial and gameBoard[r][c] == 0
 
-def make_move(gameBoard, r, c):
+def make_move(gameBoard,r, c):
     gameBoard[r][c] = 1
+
 
 pg.init()
 
-screenWidth, screenHeight, gameWidth = 800, 600, 600
-screen = pg.display.set_mode((screenWidth, screenHeight))
+screenwidth, screenheight = 800, 600
+screen = pg.display.set_mode((screenwidth, screenheight))
 pg.display.set_caption("Pop It")
-
 clock = pg.time.Clock()
-background = pg.Surface((screenWidth, screenHeight))
-background.fill("white")
 
-row3 = pg.Surface((gameWidth, screenHeight/6))
-row3.fill("yellow")
+boardsize = int(min(screenwidth, screenheight) * 0.8)
+boardx = (screenwidth - boardsize) // 2
+boardy = (screenheight - boardsize) // 2
+cell = boardsize // COLS
 
-row2 = pg.Surface((gameWidth, screenHeight/6))
-row2.fill("orange")
+popsize = int(cell * 0.85)
+popoffset = (cell - popsize) // 2
 
-row1 = pg.Surface((gameWidth, screenHeight/6))
-row1.fill("red")
 
-row4 = pg.Surface((gameWidth, screenHeight/6))
-row4.fill("blue")
+board_img = pg.image.load("Media/images/boards/gemini.png").convert_alpha()
+board_img = pg.transform.scale(board_img, (boardsize, boardsize))
 
-row5 = pg.Surface((gameWidth, screenHeight/6))
-row5.fill("green") 
+popped_img = pg.image.load("Media/images/Symbols/c.png").convert_alpha()
+popped_img = pg.transform.scale(popped_img, (popsize, popsize))
 
-row6 = pg.Surface((gameWidth, screenHeight/6))
-row6.fill("purple")
+checked_img = pg.image.load("Media/images/Symbols/final.png").convert_alpha()
+checked_img = pg.transform.scale(checked_img, (60, 60))
 
-rows = [row1, row2, row3, row4, row5, row6]
+# checkbox rects
+CB_SIZE = 100
+p1_checkbox = pg.Rect(15, screenheight // 2 - CB_SIZE // 2, CB_SIZE, CB_SIZE)
+p2_checkbox = pg.Rect(screenwidth - CB_SIZE - 15, screenheight // 2 - CB_SIZE // 2, CB_SIZE, CB_SIZE)
 
-popped_square = pg.Surface((gameWidth/6, screenHeight/6))
-popped_square.fill("black")
+checked_img = pg.image.load("Media/images/Symbols/final.png").convert_alpha()
+checked_img = pg.transform.scale(checked_img, (CB_SIZE, CB_SIZE))
 
-LINE_WIDTH = 3
-lines_background = pg.Surface((gameWidth, screenHeight))
+font = pg.font.SysFont("georgia", 28, bold=True)
 
-marker = 0
-running = True
+def draw_board():
+    screen.blit(board_img, (boardx, boardy))
+    for r in range(ROWS):
+        for c in range(COLS):
+            if gameBoard[r][c] == 1:
+                x = boardx + c * cell + popoffset
+                y = boardy + r * cell + popoffset
+                screen.blit(popped_img, (x, y))
 
-while running == True:
-        clock.tick(5)
+def draw_board_checkbox():
+    mx, my = pg.mouse.get_pos()
 
-        screen.blit(background, (0, 0))
-        
-        for i in range(6):
-            screen.blit(rows[i], (100, i*screenHeight/6))
-                
-        for i in range(6):
-            for j in range(6):
-                if gameBoard[i][j] == 1:
-                    screen.blit(popped_square, (100 + j*gameWidth/6, i*screenHeight/6))
-        
-        if check_win(gameBoard) == True:
-            #add striking the 5 x/o's code
-            pg.time.delay(6000)
-            sys.exit(PopIt.turn)
-        
-        for i in range(1, 6):
-            pg.draw.line(background, "black", (100 + i*gameWidth/6, 0), (100 + i*gameWidth/6, screenHeight), LINE_WIDTH)
-            pg.draw.line(background, "black", (100, i*screenHeight/6), (100 + gameWidth, i*screenHeight/6), LINE_WIDTH)
+    p1_label = font.render(PopIt.player1, True, (20, 20, 60))
+    p1_label_x = p1_checkbox.centerx - p1_label.get_width() // 2
+    screen.blit(p1_label, (p1_label_x, p1_checkbox.y - 35))
 
-        
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit(0)
-            
-            if event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    x, y = event.pos
-                    row = y // (screenHeight // 6)
-                    col = (x - 100) // (gameWidth // 6)
+    p2_label = font.render(PopIt.player2, True, (20, 20, 60))
+    p2_label_x = p2_checkbox.centerx - p2_label.get_width() // 2
+    screen.blit(p2_label, (p2_label_x, p2_checkbox.y - 35))
+
+    if moved and PopIt.turn == 1:
+        if p1_checkbox.collidepoint(mx, my):
+            hover_img = pg.transform.scale(checked_img, (CB_SIZE + 10, CB_SIZE + 10))
+            screen.blit(hover_img, (p1_checkbox.x - 5, p1_checkbox.y - 5))
+        else:
+            screen.blit(checked_img, p1_checkbox.topleft)
+
+    elif moved and PopIt.turn == 2:
+        if p2_checkbox.collidepoint(mx, my):
+            hover_img = pg.transform.scale(checked_img, (CB_SIZE + 10, CB_SIZE + 10))
+            screen.blit(hover_img, (p2_checkbox.x - 5, p2_checkbox.y - 5))
+        else:
+            screen.blit(checked_img, p2_checkbox.topleft)
+
+marker      = 0
+initial_row = 0
+moved       = False
+running     = True
+
+while running:
+    clock.tick(30)
+
+    screen.fill((173, 216, 230))
+    draw_board()
+    draw_board_checkbox()
+
+    if check_win():
+        pg.display.update()
+        pg.time.delay(1000)
+        sys.exit(PopIt.turn)
+
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            pg.quit()
+            sys.exit(0)
+
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+            x, y = event.pos
+
+            if p1_checkbox.collidepoint(x, y) and PopIt.turn == 1 and moved:
+                marker = 0
+                moved = False
+                PopIt.switch_turn()
+
+            elif p2_checkbox.collidepoint(x, y) and PopIt.turn == 2 and moved:
+                marker = 0
+                moved = False
+                PopIt.switch_turn()
+
+            else:
+                c = (x - boardx) // cell
+                r = (y - boardy) // cell
+
+                if 0 <= r < ROWS and 0 <= c < COLS:
                     if marker == 0:
-                        initial_row = row
+                        initial_row = r
                         marker = 1
-                    if col < 0 or col > 5:
-                        continue
-                    elif valid_move(gameBoard, initial_row, row, col):
-                        make_move(gameBoard, row, col)
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    marker = 0
+                    if valid_move(gameBoard,initial_row, r, c):
+                        make_move(gameBoard,r, c)
+                        moved = True
+    
+
+    pg.display.update()
