@@ -19,6 +19,10 @@ hub/
 
        ├── computer-othello.py
 
+       ├── computer-othello-HARD.py
+
+       ├── popIt.py
+
        ├── computer-popit.py
   
        ├── tictactoe.py 
@@ -26,7 +30,15 @@ hub/
        ├── othello.py
               
        └── connect4.py 
-       
+    
+    ├── Media
+    
+    ├──Report
+    
+    ├── data.txt
+    
+    ├── requirement.txt
+    
     └── history.csv 
 
 # INSTALLATION
