@@ -106,6 +106,7 @@ while running:
                 if 0 <= row < 10 and 0 <= col < 10 and gameBoard[row][col] == 0:
                     gameBoard[row][col] = ticTacToeGame.turn
                     anim_cells[(row, col)] = 4
+#takes care of the switching turns draw and win logics
                     if check_win(gameBoard, ticTacToeGame.turn):
                         won = True
                         draw= False
@@ -114,6 +115,7 @@ while running:
                         draw = True
                     else:
                         ticTacToeGame.switch_turn()
+#for full screen option in pygame
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_F11:
                 fullscreen = not fullscreen
@@ -147,7 +149,7 @@ while running:
                 
                 s = anim_cells.get((i, j), target_s)
                 cell_x, cell_y = boardX + j * cell_width + cell_width // 2, boardY + i * cell_height + cell_height // 2
-
+#draws the X and O 
                 if gameBoard[i][j] == 1: 
                     pg.draw.line(screen, (220, 60, 60), (cell_x-(s/2), cell_y-(s/2)), (cell_x+(s/2), cell_y+(s/2)), 4)
                     pg.draw.line(screen, (220, 60, 60), (cell_x+(s/2), cell_y-(s/2)), (cell_x-(s/2), cell_y+(s/2)), 4)
@@ -174,9 +176,9 @@ while running:
         pg.draw.rect(screen, (255, 215, 0), (p2x-60, p2y-80, 120, 130), 3, border_radius=10)
 
     pg.display.update()
-
+#only if game over and animation complete
     if won and anim_done:
-        
+#shows the player won screen or tie screen after game
         winner_name = ticTacToeGame.player1 if ticTacToeGame.turn == 1 else ticTacToeGame.player2
         font_big = pg.font.Font(None, 100)
         font_small = pg.font.Font(None, 40)
@@ -215,8 +217,9 @@ while running:
 
             pg.display.update()
 
-            if pg.time.get_ticks() - start_time > 2000:
+            if pg.time.get_ticks() - start_time > 1000:
                 break
         pg.time.delay(1500)
+        #returns to game.py respectively
         x = ticTacToeGame.turn if draw == False else 3
         sys.exit(x)
