@@ -219,18 +219,52 @@ while running:
 
     p2score = name_font.render(f"Discs: {white_count}", True, "black")
     screen.blit(p2score, p2score.get_rect(center=(p2x, p2y + 30)))
+    
+    x=check_win(gameBoard, Othello.turn)
 
-    if check_win(gameBoard, Othello.turn) == 1:
-        #add winning animation here
+    winner_name = Othello.player1 if Othello.turn == 1 else Othello.player2
+
+    font_big = pg.font.Font(None, 100)
+    font_small = pg.font.Font(None, 40)
+
+    if x != 3:
+        name=f"{winner_name} won!!"
+    else :
+        name=f"It's a Tie"
+
+        text = font_big.render(name, True, (255, 140, 200))
+        subtext = font_small.render("Returning...", True, (255, 255, 255))
+
+        text_rect = text.get_rect(center=(screenWidth // 2, screenHeight // 2 - 30))
+        sub_rect = subtext.get_rect(center=(screenWidth // 2, screenHeight // 2 + 50))
+
+        start_time = pg.time.get_ticks()
+
+        while True:
+            clock.tick(60)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+
+            screen.fill((25, 10, 50)) 
+
+            rect_w, rect_h = 500, 250
+            rect_x = screenWidth // 2 - rect_w // 2
+            rect_y = screenHeight // 2 - rect_h // 2
+
+            pg.draw.rect(screen, (60, 20, 100), (rect_x, rect_y, rect_w, rect_h), border_radius=25)
+            pg.draw.rect(screen, (200, 150, 255), (rect_x, rect_y, rect_w, rect_h), 3, border_radius=25)
+
+            screen.blit(text, text_rect)
+            screen.blit(subtext, sub_rect)
+
+            pg.display.update()
+
+            if pg.time.get_ticks() - start_time > 2000:
+                break
         pg.time.delay(1500)
-        sys.exit(1)
-    elif check_win(gameBoard, Othello.turn) == 2:
-        #add winning animation here
-        pg.time.delay(1500)
-        sys.exit(2)
-    elif check_win(gameBoard, Othello.turn) == 0:
-        #add draw animation here
-        pg.time.delay(1500)
-        sys.exit(3)
-        
+        sys.exit(x)
+    
     pg.display.update()
