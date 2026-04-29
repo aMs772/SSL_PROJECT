@@ -20,20 +20,23 @@ gameBoard[4][4] = 1
 # GAME LOGIC 
 
 def check_win(gameBoard, turn):
-    if np.count_nonzero(gameBoard == 1) + np.count_nonzero(gameBoard == 2) == 64:
+    if not is_move_available(gameBoard, 1) and not is_move_available(gameBoard, 2):
         if np.count_nonzero(gameBoard == 1) > np.count_nonzero(gameBoard == 2):
             return 1
         elif np.count_nonzero(gameBoard == 1) < np.count_nonzero(gameBoard == 2):
             return 2
         else:
-            return 0
-    elif turn == 1 and not valid_moves(gameBoard, turn):
-        return 2
-    elif turn == 2 and not valid_moves(gameBoard, turn):
-        return 1
+            return 3
     else:
         return -1
 
+
+def is_move_available(gameBoard, turn):
+    for i in range(8):
+        for j in range(8):
+            if valid_move(gameBoard, i, j, turn):
+                return True
+    return False
 
 def valid_moves(gameBoard, turn):
     moves = []
@@ -124,6 +127,7 @@ boardY = (screenHeight - boardSize) // 2
 cell_width = boardSize // 8
 cell_height = boardSize // 8
 
+game_over = False
 running = True
 while running:
     clock.tick(60)
@@ -175,6 +179,11 @@ while running:
             boardY = (screenHeight - boardSize) // 2
             cell_width = boardSize // 8
             cell_height = boardSize // 8
+    if not game_over:
+        if not is_move_available(gameBoard, Othello.turn):
+            Othello.switch_turn()
+            if not is_move_available(gameBoard, Othello.turn):
+                game_over = True
 
     # DRAW DISCS 
     for i in range(8):
@@ -222,15 +231,16 @@ while running:
     
     x=check_win(gameBoard, Othello.turn)
 
-    winner_name = Othello.player1 if Othello.turn == 1 else Othello.player2
+    # winner_name = Othello.player1 if Othello.turn == 1 else Othello.player2
 
     font_big = pg.font.Font(None, 100)
     font_small = pg.font.Font(None, 40)
 
-    if x != 3:
-        name=f"{winner_name} won!!"
-    else :
-        name=f"It's a Tie"
+    if game_over:
+        if x != 3:
+            name=f"{Othello.player1 if x == 1 else Othello.player2} won!!"
+        else:
+            name=f"It's a Tie"
 
         text = font_big.render(name, True, (255, 140, 200))
         subtext = font_small.render("Returning...", True, (255, 255, 255))
