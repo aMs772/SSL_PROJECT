@@ -71,7 +71,7 @@ def check_win(m, turn):
 
     return horiz(m) or vert(m) or diag(m) or anti_diag(m)
 
-
+#drawing the board and bg colour changing effects
 def draw_board(screen, board, hover_col, turn):
     global bg_t
     speed = 0.05
@@ -83,10 +83,10 @@ def draw_board(screen, board, hover_col, turn):
     bg_color = lerp_color(bg_p1, bg_p2, bg_t)
     screen.fill(bg_color)
 
-    # board
+    # drawing the entire board
     pg.draw.rect(screen, (50, 100, 160), (boardx, boardy, boardw, boardh), border_radius=20)
 
-    # cells
+    # drawing the cells
     for r in range(7):
         for c in range(7):
             cx = int(boardx + c * cell_width + cell_width // 2)
@@ -98,7 +98,7 @@ def draw_board(screen, board, hover_col, turn):
                 color = (255, 60, 60) if board[r][c] == 1 else (255, 220, 0)
                 pg.draw.circle(screen, color, (cx, cy), int(cell_width // 2.5))
 
-    # hover highlight
+    # for hover highlight
     if hover_col is not None:
         hover_col = max(0, min(6, hover_col))
         col_x = boardx + hover_col * cell_width
@@ -112,23 +112,23 @@ def draw_board(screen, board, hover_col, turn):
         hy = int(boardy - cell_height * 0.6)
         pg.draw.circle(screen, color, (hx, hy), int(cell_width // 2.5))
 
-    # Player 1
+    # Player 1 info and panels
     p1x, p1y = boardx // 2, screenheight // 2
     p1name = name_font.render(connect4.player1, True, "blue")
     screen.blit(p1name, p1name.get_rect(center=(p1x, p1y + 20)))
     pg.draw.circle(screen, (255, 60, 60), (p1x, p1y - 40), int(cell_width // 2.5))
-
+#highlights 
     if connect4.turn == 1:
         pg.draw.rect(screen, (255, 215, 0), (p1x - 60, p1y - 80, 120, 130), 3, border_radius=10)
 
-    # Player 2
+    # Player 2 panels and info
     p2x = boardx + boardw + (screenwidth - boardx - boardw) // 2
     p2y = screenheight // 2
     pg.draw.circle(screen, (255, 220, 0), (p2x, p2y - 40), int(cell_width // 2.5))
 
     p2name = name_font.render(connect4.player2, True, "red")
     screen.blit(p2name, p2name.get_rect(center=(p2x, p2y + 20)))
-
+#highlights
     if connect4.turn == 2:
         pg.draw.rect(screen, (255, 215, 0), (p2x - 60, p2y - 80, 120, 130), 3, border_radius=10)
 
@@ -142,7 +142,7 @@ def animate_fall(screen, board, col, target_row, turn):
 
     speed = 0
     gravity = 2
-
+#animates the falling of the circle
     while current_y < target_y:
         draw_board(screen, board, None, turn)
 
@@ -187,10 +187,11 @@ while running:
     clock.tick(60)
 
     for event in pg.event.get():
+        #if closed
         if event.type == pg.QUIT:
             pg.quit()
             sys.exit(0)
-
+#if the mouse is in btweent he board then hover effect occurs
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             x, y = pg.mouse.get_pos()
             if boardx < x < boardx + boardw and boardy < y < boardy + boardh:
@@ -200,11 +201,11 @@ while running:
 
                 while row_tofill >= 0 and gameBoard[row_tofill][col] != 0:
                     row_tofill -= 1
-
+#checks which row is empty to be filled
                 if row_tofill >= 0:
                     animate_fall(screen,gameBoard, col, row_tofill, connect4.turn)
                     gameBoard[row_tofill][col] = connect4.turn
-
+#handles the logic for win draw and turn changing
                     if check_win(gameBoard, connect4.turn):
                         won = True
                         draw = False
@@ -213,7 +214,7 @@ while running:
                         draw = True
                     else:
                         connect4.switch_turn()
-
+#for using the game in fullscreen
         if event.type == pg.KEYDOWN and event.key == pg.K_F11:
             fullscreen = not fullscreen
 
@@ -229,7 +230,7 @@ while running:
             boardy = (screenheight - boardh) // 2
             cell_width = boardw // 7
             cell_height = boardh // 7
-
+#for using the game in fullscreen
 
         if event.type == pg.VIDEORESIZE and not fullscreen:
             screenwidth, screenheight = event.w, event.h
@@ -250,13 +251,13 @@ while running:
 
     draw_board(screen, connect4.board, hover_col, connect4.turn)
     pg.display.update()
-
+#runs this part only if the game is over
     if won == True:
         winner_name = connect4.player1 if connect4.turn == 1 else connect4.player2
 
         font_big = pg.font.Font(None, 100)
         font_small = pg.font.Font(None, 40)
-
+#prints the player won and waits for some time
         if draw == False:
             name = f"{winner_name} won!!"
         else:
@@ -291,9 +292,9 @@ while running:
             screen.blit(subtext, sub_rect)
 
             pg.display.update()
-
-            if pg.time.get_ticks() - start_time > 2000:
+#for waiting of 1sec
+            if pg.time.get_ticks() - start_time > 1000:
                 break
-
+#returns to game.py accordingly 
         x = connect4.turn if draw == False else 3
         sys.exit(x)
