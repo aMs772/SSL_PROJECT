@@ -1,13 +1,12 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import pygame as pg
 import numpy as np
 from game import game 
-
+#taking arguments from game.py
 Othello = game(sys.argv[1], sys.argv[2])
-
+#board as numpy array
 gameBoard = Othello.board(8)
 
 # initial setup
@@ -17,7 +16,7 @@ gameBoard[4][3] = 2
 gameBoard[4][4] = 1
 
 
-# GAME LOGIC 
+# game logic
 
 def check_win(gameBoard, turn):
     if not is_move_available(gameBoard, 1) and not is_move_available(gameBoard, 2):
@@ -79,7 +78,6 @@ def flip_direction(gameBoard, r, c, turn, dr, dc, make_move):
         return True
 
     return False
-
 
 def valid_move(gameBoard, r, c, turn):
     if gameBoard[r][c] != 0:
@@ -152,7 +150,6 @@ while running:
                      (boardX, boardY + i * cell_height),
                      (boardX + boardSize, boardY + i * cell_height), 2)
 
-    # EVENTS 
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
@@ -163,13 +160,13 @@ while running:
                 x, y = event.pos
                 col = (x - boardX) // cell_width
                 row = (y - boardY) // cell_height
-
+#making the moves and checking the win condition
                 if 0 <= row < 8 and 0 <= col < 8:
                     if valid_move(gameBoard, row, col, Othello.turn):
                         make_move(gameBoard, row, col, Othello.turn)
                         if check_win(gameBoard, Othello.turn) == -1:
                             Othello.switch_turn()
-
+#for playing in full screen
         if event.type == pg.VIDEORESIZE:
             screenWidth, screenHeight = event.w, event.h
             screen = pg.display.set_mode((screenWidth, screenHeight), pg.RESIZABLE)
@@ -179,6 +176,7 @@ while running:
             boardY = (screenHeight - boardSize) // 2
             cell_width = boardSize // 8
             cell_height = boardSize // 8
+#switcihng tuen and checking condition
     if not game_over:
         if not is_move_available(gameBoard, Othello.turn):
             Othello.switch_turn()
@@ -235,7 +233,7 @@ while running:
 
     font_big = pg.font.Font(None, 100)
     font_small = pg.font.Font(None, 40)
-
+#after game screen showing who won the game
     if game_over:
         if x != 3:
             name=f"{Othello.player1 if x == 1 else Othello.player2} won!!"
@@ -271,10 +269,10 @@ while running:
             screen.blit(subtext, sub_rect)
 
             pg.display.update()
-
-            if pg.time.get_ticks() - start_time > 2000:
+#waits for a sec
+            if pg.time.get_ticks() - start_time > 1000:
                 break
         pg.time.delay(1500)
         sys.exit(x)
-    
+    #exits the code cleanly to game.py
     pg.display.update()
