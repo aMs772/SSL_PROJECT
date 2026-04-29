@@ -1,7 +1,5 @@
 import sys
 import os
-
-from games.connect4 import C4
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pygame as pg
 from game import game 
@@ -183,6 +181,8 @@ fullscreen = False
 
 
 running = True
+won=False
+draw=False
 while running:
     clock.tick(60)
 
@@ -202,31 +202,39 @@ while running:
                     row_tofill -= 1
 
                 if row_tofill >= 0:
-                    animate_fall(screen, gameBoard, col, row_tofill, connect4.turn)
+                    animate_fall(screen,gameBoard, col, row_tofill, connect4.turn)
                     gameBoard[row_tofill][col] = connect4.turn
 
-                    if not check_win(gameBoard, connect4.turn):
-                        if np.count_nonzero(gameBoard) == 49:
-                            sys.exit(3)
-                        else:
-                            connect4.switch_turn()
+                    if check_win(gameBoard, connect4.turn):
+                        won = True
+                        draw = False
+                    elif np.count_nonzero(gameBoard) == 49:
+                        won = True
+                        draw = True
+                    else:
+                        connect4.switch_turn()
 
         if event.type == pg.KEYDOWN and event.key == pg.K_F11:
             fullscreen = not fullscreen
+
             if fullscreen:
                 screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
             else:
-                screen = pg.display.set_mode((screenwidth, screenheight), pg.RESIZABLE)
-                screenwidth, screenheight = screen.get_size()
-                boardh = boardw = int(screenheight * 0.78)
-                boardx = (screenwidth - boardw) // 2
-                boardy = (screenheight - boardh) // 2
-                cell_width = boardw // 7
-                cell_height = boardh // 7
+                screen = pg.display.set_mode((800, 600), pg.RESIZABLE)
 
-        if event.type == pg.VIDEORESIZE:
+            screenwidth, screenheight = screen.get_size()
+
+            boardh = boardw = int(screenheight * 0.78)
+            boardx = (screenwidth - boardw) // 2
+            boardy = (screenheight - boardh) // 2
+            cell_width = boardw // 7
+            cell_height = boardh // 7
+
+
+        if event.type == pg.VIDEORESIZE and not fullscreen:
             screenwidth, screenheight = event.w, event.h
             screen = pg.display.set_mode((screenwidth, screenheight), pg.RESIZABLE)
+
             boardh = boardw = int(screenheight * 0.78)
             boardx = (screenwidth - boardw) // 2
             boardy = (screenheight - boardh) // 2
@@ -240,11 +248,52 @@ while running:
     else:
         hover_col = None
 
-    draw_board(screen, gameBoard, hover_col, connect4.turn)
-
-    if check_win(gameBoard, connect4.turn):
-        # draw win animation
-        sys.exit(connect4.turn)
-
+    draw_board(screen, connect4.board, hover_col, connect4.turn)
     pg.display.update()
 
+    if won == True:
+        winner_name = connect4.player1 if connect4.turn == 1 else connect4.player2
+
+        font_big = pg.font.Font(None, 100)
+        font_small = pg.font.Font(None, 40)
+
+        if draw == False:
+            name = f"{winner_name} won!!"
+        else:
+            name = "It's a Tie"
+
+        text = font_big.render(name, True, (255, 140, 200))
+        subtext = font_small.render("Returning...", True, (255, 255, 255))
+
+        text_rect = text.get_rect(center=(screenwidth // 2, screenheight // 2 - 30))
+        sub_rect = subtext.get_rect(center=(screenwidth // 2, screenheight // 2 + 50))
+
+        start_time = pg.time.get_ticks()
+
+        while True:
+            clock.tick(60)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+
+            screen.fill((25, 10, 50)) 
+
+            rect_w, rect_h = 500, 250
+            rect_x = screenwidth // 2 - rect_w // 2
+            rect_y = screenheight // 2 - rect_h // 2
+
+            pg.draw.rect(screen, (60, 20, 100), (rect_x, rect_y, rect_w, rect_h), border_radius=25)
+            pg.draw.rect(screen, (200, 150, 255), (rect_x, rect_y, rect_w, rect_h), 3, border_radius=25)
+
+            screen.blit(text, text_rect)
+            screen.blit(subtext, sub_rect)
+
+            pg.display.update()
+
+            if pg.time.get_ticks() - start_time > 2000:
+                break
+
+        x = connect4.turn if draw == False else 3
+        sys.exit(x)
