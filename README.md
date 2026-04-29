@@ -23,6 +23,74 @@ hub/
        
     └── history.csv 
 
+# INSTALLATION
+``` bash
+git clone <repository-url>
+cd repo
+pip install -r requirements.txt
+```
+# USAGE 
+
+For playing games, go to terminal and type
+``` bash
+bash main.sh
+```
+then you will be prompted for usernames of players. If players arent logged in then you will be prompted for registration. After this a popup window for games menu will be opened. Click the game icon you wish to play and a popup window of that game will open. The games are turn based games and player's turn will be indicated. 
+
+After the game is ended 
+The winner will be shown on the screen followed by a screen asking for sortoption which is used by leaderboard.sh to print the leaderboard in terminal according to sortoption.
+Matplot statistics would be shown in pygame window which on pressing space key shows the next screen which shows the player options of play again,quit,back to menu.
+
+During the game for making the popup window full size, you can either press F11 or click on full screen option on top right corner
+
+For popIt game, after completing your turn you must press space bar for completing your move
+
+For playing against computer, enter the second player info is 
+```bash
+username = ###AI###
+password = ###AI###
+```
+
+# RULES FOR GAMES
+
+# Tic Tac Toe
+
+Game board consists of a grid of 10*10 cells. In each cell a player must place X or O. One player places X and another O. Players play thier move one after another. The game ends when 5 X's or 5 O's are in a line. If all the cells are placed with X or O and nobody has won, then the game is a tie
+
+For further info
+```bash
+https://en.wikipedia.org/wiki/Tic-tac-toe
+```
+# Connect 4
+
+Game board consists of a grid of 7*7 cells. This game board is vertical and players have to drop a coin in one of the columns. players have to play one after another using different coloured coins. Player wins when any of their 4 coins lie on a line. If all the cells are filled and nobody has won then the game is a tie.
+
+For further info
+```bash
+https://en.wikipedia.org/wiki/Connect_Four
+```
+
+# Othello 
+
+Game board consists of a grid of 8*8 cells. One player plays with black coins while other player plays with white coins. Initially 2 black coins and 2 white coins are placed on the board alternatively. A player can place his coin only in places where after placing his coin, some of the opponents coins should be enclosed by his newly placed coin and another coin of him. There shouldnt be any empty coins between his two coins while placing his coin. After placing his coin all the coins of opponent enclosed by his newly placed coin another coin are replaced by his coins. Player play thier move alternatively and if a player has no valid moves then his turn is skipped. The game ends when there are no valid moves left. The player with highest number of coins is the winner
+
+For further info
+```bash
+https://en.wikipedia.org/wiki/Othello
+```
+
+# PopIt
+
+This game consists of multiple colred rows. Each row consists of multiple bubbles. A player in his move can pop any number of bubbles but only in a single row. Players play their move alternatively. The player who pops the last bubble loses
+
+# Note
+In computer mode only a 4*4 grid is implemented for tictactoe and othello, and only a 3*3 grid is implemented for popit
+An alternate computer version of othello game is implemented in 8*8 grid
+To play this alternate version click on connect$ game icon
+In this alternate version the computer is greedy and may loose sometimes
+
+# SOME ADDITIONAL INFO OF SOME FILES
+
 # 1) main.sh
 
 In order for players to play games, they must execute main.sh . Once main.sh is executed, it prompts for details of players
@@ -65,7 +133,15 @@ using variables, so it can be adjusted easily.
 After players complete playing a game,they would be asked to whether play again or quit.
 The program uses sys.exit() to properly close when the user exits the window.
 
+# 4) pygame files
 
+These files uses game class defined in game.py and take arguments from game.py using subprocess. But for quick checking and debugging you can directly run this file with 2 arguments.
+
+# THANK YOU
+
+Thank you for going through our repository and playing our games 
+
+HAVE FUN PLAYING OUR GAMES
 
 
 
