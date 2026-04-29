@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#computes wins, losses, and W/L ratio for each player per game.
 sort_option=$1
 awk -F, '
 {
@@ -25,8 +25,8 @@ END {
         
         print info[1] "," info[2] "," w "," l "," ratio
     }
-}' history.csv > data.txt
-
+}' history.csv > data.txt #stores the data into data.txt
+#according to sort option prints the table in terminal
 if [ "$sort_option" == "L" ]; then
     col=4
 elif [ "$sort_option" == "W/L" ]; then
@@ -34,7 +34,7 @@ elif [ "$sort_option" == "W/L" ]; then
 else
     col=3
 fi
-
+#shows the table
 for g in TicTacToe Othello Connect4 Popit; do
     echo "--- $g ---"
     echo "PLAYER|WINS|LOSSES|W/L"
