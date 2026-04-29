@@ -108,9 +108,10 @@ while running:
                     anim_cells[(row, col)] = 4
                     if check_win(gameBoard, ticTacToeGame.turn):
                         won = True
+                        draw= False
                     elif np.count_nonzero(gameBoard) == 100:
-                            pg.time.delay(1500)
-                            sys.exit(3)  
+                        won = True  
+                        draw = True
                     else:
                         ticTacToeGame.switch_turn()
         if event.type == pg.KEYDOWN:
@@ -175,9 +176,47 @@ while running:
     pg.display.update()
 
     if won and anim_done:
-        #winner_name = ticTacToeGame.player1 if ticTacToeGame.turn == 1 else ticTacToeGame.player2
-        #ticTacToeGame.afterwin(screen, winner_name, clock, lambda: draw_board(screen, m, None, ticTacToeGame.turn))
-        #should add the animation for the striking after win
-        pg.time.delay(1500)
-        sys.exit(ticTacToeGame.turn)
+        
+        winner_name = ticTacToeGame.player1 if ticTacToeGame.turn == 1 else ticTacToeGame.player2
+        font_big = pg.font.Font(None, 100)
+        font_small = pg.font.Font(None, 40)
+        if draw == False:
+            name=f"{winner_name} won!!"
+        else :
+            name=f"It's a Tie"
 
+        text = font_big.render(name, True, (255, 140, 200))
+        subtext = font_small.render("Returning...", True, (255, 255, 255))
+
+        text_rect = text.get_rect(center=(screenWidth // 2, screenHeight // 2 - 30))
+        sub_rect = subtext.get_rect(center=(screenWidth // 2, screenHeight // 2 + 50))
+
+        start_time = pg.time.get_ticks()
+
+        while True:
+            clock.tick(60)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+
+            screen.fill((25, 10, 50)) 
+
+            rect_w, rect_h = 500, 250
+            rect_x = screenWidth // 2 - rect_w // 2
+            rect_y = screenHeight // 2 - rect_h // 2
+
+            pg.draw.rect(screen, (60, 20, 100), (rect_x, rect_y, rect_w, rect_h), border_radius=25)
+            pg.draw.rect(screen, (200, 150, 255), (rect_x, rect_y, rect_w, rect_h), 3, border_radius=25)
+
+            screen.blit(text, text_rect)
+            screen.blit(subtext, sub_rect)
+
+            pg.display.update()
+
+            if pg.time.get_ticks() - start_time > 2000:
+                break
+        pg.time.delay(1500)
+        x = ticTacToeGame.turn if draw == False else 3
+        sys.exit(x)
