@@ -14,6 +14,12 @@ hub/
     ├── leaderboard.sh 
   
     ├── games/
+
+       ├── computer-ticTacToe.py
+
+       ├── computer-othello.py
+
+       ├── computer-popit.py
   
        ├── tictactoe.py 
        
