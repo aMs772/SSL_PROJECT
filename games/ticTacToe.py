@@ -18,7 +18,9 @@ else:
 
 ticTacToeGame = game(player1, player2)
 
-gameBoard = ticTacToeGame.board(10)
+number = int(sys.argv[3])
+
+gameBoard = ticTacToeGame.board(number)
 memory = gameBoard.copy()
 
 def check_win(m, turn, target=5 ):
@@ -71,7 +73,7 @@ clock = pg.time.Clock()
 # gameBoard info
 boardSize = int(screenHeight * 0.85)
 boardX, boardY = (screenWidth - boardSize) // 2, (screenHeight - boardSize) // 2
-cell_width = cell_height = boardSize // 10
+cell_width = cell_height = boardSize // number
 anim_cells = {} 
 name_font = pg.font.SysFont("Georgia", 28, bold=True)
 
@@ -103,14 +105,14 @@ while running:
                 x, y = event.pos
                 col = (x - boardX) // cell_width
                 row = (y - boardY) // cell_height
-                if 0 <= row < 10 and 0 <= col < 10 and gameBoard[row][col] == 0:
+                if 0 <= row < number and 0 <= col < number and gameBoard[row][col] == 0:
                     gameBoard[row][col] = ticTacToeGame.turn
                     anim_cells[(row, col)] = 4
 #takes care of the switching turns draw and win logics
                     if check_win(gameBoard, ticTacToeGame.turn):
                         won = True
                         draw= False
-                    elif np.count_nonzero(gameBoard) == 100:
+                    elif np.count_nonzero(gameBoard) == number*number:
                         won = True  
                         draw = True
                     else:
@@ -127,7 +129,7 @@ while running:
                 boardSize = int(screenHeight * 0.85)
                 boardX    = (screenWidth - boardSize) // 2
                 boardY    = (screenHeight - boardSize) // 2
-                cell_width = cell_height = boardSize // 10
+                cell_width = cell_height = boardSize // number
 
         if event.type == pg.VIDEORESIZE:
             screenWidth, screenHeight = event.w, event.h
@@ -135,12 +137,12 @@ while running:
             boardSize = int(screenHeight * 0.85)
             boardX    = (screenWidth - boardSize) // 2
             boardY    = (screenHeight - boardSize) // 2
-            cell_width = cell_height = boardSize // 10
+            cell_width = cell_height = boardSize // number
 
     # Doing animation
     anim_done = True
-    for i in range(10):
-        for j in range(10):
+    for i in range(number):
+        for j in range(number):
             if gameBoard[i][j] != 0:
                 target_s = cell_width * 0.7
                 if anim_cells.get((i, j), target_s) < target_s:
