@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3.10
+#!/usr/local/bin/python
 import sys
 import random
 import csv
@@ -73,6 +73,19 @@ if __name__ == "__main__":
     command_font = pg.font.Font(None, 50)
     command = command_font.render("Click on game to start", False, "white")
     command_rect = command.get_rect(center=(screenWidth//2, 200))
+
+    btn_wid,btn_ht=170,60
+    btn_y=230
+    grid_x = screenWidth // 2 - btn_wid // 2
+    grid_rect = pg.Rect(grid_x, btn_y, btn_wid, btn_ht)
+
+    grid_color = (30 ,90, 160)
+    
+    small_font1 = pg.font.SysFont("Arial", 40, bold=True)
+    grid_text = small_font1.render("Grid Size", True, (255, 245, 230))
+
+
+
 
     pg.mixer.pre_init(44100, -16, 2, 512)
     backgroundMusic = pg.mixer.Sound("Media/sounds/Softcore.mp3")
@@ -285,11 +298,15 @@ if __name__ == "__main__":
                      if event.button == 1:
                         #runs the subprocess of each game files
                         #returns the winner from gamefile and used for the storage
+                        if grid_rect.collidepoint(event.pos):
+                            grid_result = subprocess.run(["python", "grid.py", player1, player2])
                         if ticTacToe_rect.collidepoint(event.pos):
                             if player2 != "###AI###":
-                                resultT = subprocess.run(["python3.10", "games/ticTacToe.py", player1, player2])
+                                if grid_result.returncode == 6:
+                                    x = str(6)
+                                    resultT = subprocess.run(["python", "games/ticTacToe.py", player1, player2, x])
                             else:
-                                resultT = subprocess.run(["python3.10", "games/computer-ticTacToe.py", player1, player2])
+                                resultT = subprocess.run(["python", "games/computer-ticTacToe.py", player1, player2])
                             if resultT.returncode != 0:
                                 winner = player1 if resultT.returncode == 1 else player2
                                 loser=player2 if resultT.returncode == 1 else player1
@@ -297,9 +314,9 @@ if __name__ == "__main__":
                                 gamePlayed="TicTacToe"
                         elif othello_rect.collidepoint(event.pos):
                             if player2 != "###AI###":
-                                resultO = subprocess.run(["python3.10", "games/othello.py", player1, player2])
+                                resultO = subprocess.run(["python", "games/othello.py", player1, player2])
                             else:
-                                resultO = subprocess.run(["python3.10", "games/computer-othello-HARD.py", player1, player2])
+                                resultO = subprocess.run(["python", "games/computer-othello-HARD.py", player1, player2])
                             if resultO.returncode != 0:
                                 winner = player1 if resultO.returncode == 1 else player2
                                 loser=player2 if resultO.returncode == 1 else player1
@@ -307,9 +324,9 @@ if __name__ == "__main__":
                                 gamePlayed="Othello"
                         elif connect4_rect.collidepoint(event.pos):
                             if player2 != "###AI###":
-                                resultC = subprocess.run(["python3.10", "games/connect4.py", player1, player2])
+                                resultC = subprocess.run(["python", "games/connect4.py", player1, player2])
                             else:
-                                resultC = subprocess.run(["python3.10", "games/computer-othello.py", player1, player2])
+                                resultC = subprocess.run(["python", "games/computer-othello.py", player1, player2])
                             if resultC.returncode != 0 :
                                 winner = player1 if resultC.returncode == 1 else player2
                                 loser=player2 if resultC.returncode == 1 else player1
@@ -317,9 +334,9 @@ if __name__ == "__main__":
                                 gamePlayed="Connect4"
                         elif popit_rect.collidepoint(event.pos):
                             if player2 != "###AI###":
-                                resultp = subprocess.run(["python3.10", "games/popIt.py", player1, player2])
+                                resultp = subprocess.run(["python", "games/popIt.py", player1, player2])
                             else:       
-                                resultp=subprocess.run(["python3.10", "games/computer-PopIt.py", player1, player2])
+                                resultp=subprocess.run(["python", "games/computer-PopIt.py", player1, player2])
                             if resultp.returncode != 0 :
                                 winner = player1 if resultp.returncode == 1 else player2
                                 loser=player2 if resultp.returncode == 1 else player1
@@ -329,6 +346,9 @@ if __name__ == "__main__":
             screen.blit(background, (0, 0))
             screen.blit(heading, heading_rect)
             screen.blit(command, command_rect)
+            pg.draw.rect(screen, grid_color, grid_rect, border_radius=30)
+            pg.draw.rect(screen, (100, 200, 255), grid_rect, width=3, border_radius=30)
+            screen.blit(grid_text, grid_text.get_rect(center=grid_rect.center))
             # if mouse on logo then hover effect
             if ticTacToe_rect.collidepoint(mouse_pos):
                 temp = pg.transform.scale(ticTacToe, (140, 140))
@@ -437,24 +457,24 @@ if __name__ == "__main__":
                 if x == "play_again":
                     if gamePlayed == "TicTacToe":
                         if player2 != "###AI###":
-                            subprocess.run(["python3.10", "games/ticTacToe.py", player1, player2])
+                            subprocess.run(["python", "games/ticTacToe.py", player1, player2])
                         else:
-                            subprocess.run(["python3.10", "games/computer-ticTacToe.py", player1, player2])
+                            subprocess.run(["python", "games/computer-ticTacToe.py", player1, player2])
                     elif gamePlayed == "Othello":
                         if player2 != "###AI###":
-                            subprocess.run(["python3.10", "games/othello.py", player1, player2])
+                            subprocess.run(["python", "games/othello.py", player1, player2])
                         else:
-                            subprocess.run(["python3.10", "games/computer-othello-HARD.py", player1, player2])
+                            subprocess.run(["python", "games/computer-othello-HARD.py", player1, player2])
                     elif gamePlayed == "Connect4":
                         if player2 != "###AI###":
-                            subprocess.run(["python3.10", "games/connect4.py", player1, player2])
+                            subprocess.run(["python", "games/connect4.py", player1, player2])
                         else:
-                            subprocess.run(["python3.10", "games/computer-othello-HARD.py", player1, player2])
+                            subprocess.run(["python", "games/computer-othello-HARD.py", player1, player2])
                     elif gamePlayed == "Pop It":
                         if player2 != "###AI###":
-                            subprocess.run(["python3.10", "games/popIt.py", player1, player2])
+                            subprocess.run(["python", "games/popIt.py", player1, player2])
                         else:
-                            subprocess.run(["python3.10", "games/computer-PopIt.py", player1, player2])
+                            subprocess.run(["python", "games/computer-PopIt.py", player1, player2])
 
                     music = False
                     playedGame = False
