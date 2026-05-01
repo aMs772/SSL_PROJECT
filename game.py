@@ -305,6 +305,12 @@ if __name__ == "__main__":
                                 if grid_result.returncode == 6:
                                     x = str(6)
                                     resultT = subprocess.run(["python", "games/ticTacToe.py", player1, player2, x])
+                                if grid_result.returncode == 8:
+                                    x = str(8)
+                                    resultT = subprocess.run(["python", "games/ticTacToe.py", player1, player2, x])
+                                if grid_result.returncode == 10:
+                                    x = str(10)
+                                    resultT = subprocess.run(["python", "games/ticTacToe.py", player1, player2, x])
                             else:
                                 resultT = subprocess.run(["python", "games/computer-ticTacToe.py", player1, player2])
                             if resultT.returncode != 0:
