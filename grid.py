@@ -47,6 +47,8 @@ while running:
                     sys.exit(6)
                 elif grid_rect2.collidepoint(event.pos):
                     sys.exit(8)
+                elif grid_rect3.collidepoint(event.pos):
+                    sys.exit(10)
                     
     pg.draw.rect(screen, grid_color, grid_rect1, border_radius=30)
     pg.draw.rect(screen, (100, 200, 255), grid_rect1, width=3, border_radius=30)
